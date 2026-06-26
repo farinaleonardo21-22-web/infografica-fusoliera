@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusoliera · Pressurizzazione · Materiali — AER-001</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & BASE ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0a0b0d;
+  --paper:#f5f2eb;
+  --cream:#ede9df;
+  --warm:#e8e2d4;
+  --gold:#c8a84b;
+  --gold-dim:#a8893a;
+  --cobalt:#1a3a6e;
+  --cobalt-light:#2755a6;
+  --red:#b83232;
+  --teal:#1a6e5a;
+  --muted:#7a7060;
+  --faint:#c8c0ae;
+  --rule:rgba(10,11,13,0.12);
+  --rule-heavy:rgba(10,11,13,0.25);
+  --serif:'Playfair Display',Georgia,serif;
+  --display:'Syne',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+
+html{background:var(--ink);color:var(--ink);font-family:var(--display)}
+body{
+  background:var(--paper);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* grain overlay */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.6;
+}
+
+/* ─── CUSTOM CURSOR ─── */
+.cursor{
+  position:fixed;top:0;left:0;z-index:10000;
+  width:8px;height:8px;background:var(--gold);
+  border-radius:50%;pointer-events:none;
+  transform:translate(-50%,-50%);
+  transition:transform .1s ease, width .2s ease, height .2s ease;
+  mix-blend-mode:multiply;
+}
+.cursor-ring{
+  position:fixed;top:0;left:0;z-index:9999;
+  width:32px;height:32px;
+  border:1px solid var(--gold);
+  border-radius:50%;pointer-events:none;
+  transform:translate(-50%,-50%);
+  transition:transform .4s cubic-bezier(.25,.46,.45,.94), opacity .3s;
+  opacity:.5;
+}
+
+/* ─── HEADER ─── */
+.site-header{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 3rem;
+  background:rgba(245,242,235,0.88);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--rule-heavy);
+}
+.logo-mark{
+  display:flex;align-items:center;gap:12px;
+}
+.logo-box{
+  width:32px;height:32px;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-box svg{width:18px;height:18px;fill:var(--gold)}
+.logo-text{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink);text-transform:uppercase;font-weight:500}
+.header-center{
+  position:absolute;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted);
+}
+.header-nav{display:flex;gap:0}
+.hnav{
+  background:none;border:none;
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  color:var(--muted);text-transform:uppercase;
+  padding:0 14px;height:56px;cursor:pointer;
+  position:relative;transition:color .2s;
+  border-right:1px solid var(--rule);
+}
+.hnav:first-child{border-left:1px solid var(--rule)}
+.hnav::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--gold);transform:scaleX(0);transition:transform .2s;
+}
+.hnav:hover,.hnav.on{color:var(--ink)}
+.hnav.on::after{transform:scaleX(1)}
+.hnav:hover::after{transform:scaleX(1)}
+
+/* ─── SECTIONS ─── */
+.sec{display:none;padding-top:56px;min-height:100vh}
+.sec.on{display:block}
+
+/* ─── HERO ─── */
+#hero{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  position:relative;
+  overflow:hidden;
+}
+.hero-left{
+  padding:7rem 3rem 4rem;
+  border-right:1px solid var(--rule-heavy);
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;z-index:2;
+}
+.hero-right{
+  padding:7rem 3rem 4rem;
+  background:var(--ink);
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.hero-right::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 60% 40%, rgba(200,168,75,.12) 0%, transparent 65%);
+}
+.eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  color:var(--gold);text-transform:uppercase;margin-bottom:2rem;
+  display:flex;align-items:center;gap:12px;
+}
+.eyebrow::before{content:'';width:28px;height:1px;background:var(--gold)}
+.hero-h1{
+  font-family:var(--serif);font-size:clamp(2.8rem,5vw,5.5rem);
+  font-weight:400;line-height:1.05;color:var(--ink);
+  margin-bottom:2rem;
+}
+.hero-h1 em{font-style:italic;color:var(--cobalt)}
+.hero-body{
+  font-size:15px;font-weight:400;color:var(--muted);
+  line-height:1.8;max-width:420px;margin-bottom:3rem;
+}
+.hero-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  border-top:1px solid var(--rule-heavy);
+}
+.hstat{
+  padding:1.25rem 0;
+  border-right:1px solid var(--rule);
+  padding-right:1.25rem;margin-right:1.25rem;
+}
+.hstat:last-child{border-right:none;margin-right:0;padding-right:0}
+.hstat-n{
+  font-family:var(--serif);font-size:2.2rem;color:var(--ink);
+  line-height:1;margin-bottom:.25rem;
+}
+.hstat-l{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em}
+
+/* Hero SVG canvas */
+#heroCanvas{position:relative;z-index:2}
+.hero-caption{
+  position:relative;z-index:2;
+  font-family:var(--mono);font-size:10px;color:rgba(245,242,235,0.4);
+  letter-spacing:.12em;text-transform:uppercase;margin-top:2rem;
+}
+
+/* ─── SECTION INTERIOR ─── */
+.sec-inner{max-width:1200px;margin:0 auto;padding:4rem 3rem 6rem}
+.sec-header{
+  display:grid;grid-template-columns:auto 1fr auto;
+  align-items:baseline;gap:1.5rem;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid var(--rule-heavy);
+  margin-bottom:3rem;
+}
+.sec-num{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.15em}
+.sec-title{font-family:var(--serif);font-size:2.5rem;font-weight:400;color:var(--ink)}
+.sec-desc-short{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;text-align:right;max-width:200px;line-height:1.6;text-transform:uppercase}
+
+/* ─── EDITORIAL GRID ─── */
+.ed-grid{display:grid;gap:1px;background:var(--rule-heavy);border:1px solid var(--rule-heavy);margin-bottom:2.5rem}
+.ed-2{grid-template-columns:1fr 1fr}
+.ed-3{grid-template-columns:1fr 1fr 1fr}
+.ed-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.ed-cell{background:var(--paper);padding:1.75rem 2rem}
+.ed-label{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:.6rem}
+.ed-val{font-family:var(--serif);font-size:2.6rem;color:var(--ink);line-height:1;margin-bottom:.3rem}
+.ed-sub{font-size:12px;color:var(--muted);font-weight:400}
+.ed-title{font-family:var(--display);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em}
+.ed-body{font-size:13px;color:var(--muted);line-height:1.75}
+.ed-cell-dark{background:var(--ink);color:var(--paper)}
+.ed-cell-dark .ed-label{color:var(--gold)}
+.ed-cell-dark .ed-val{color:var(--paper)}
+.ed-cell-dark .ed-sub{color:rgba(245,242,235,.5)}
+.ed-cell-dark .ed-title{color:var(--paper)}
+.ed-cell-dark .ed-body{color:rgba(245,242,235,.55)}
+
+/* ─── FORMULA ─── */
+.formula-block{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--rule-heavy);border:1px solid var(--rule-heavy);
+  margin-bottom:2.5rem;
+}
+.formula-cell{background:var(--cream);padding:2rem 2.5rem}
+.formula-tag{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:.75rem}
+.formula-eq{
+  font-family:var(--mono);font-size:2rem;
+  color:var(--cobalt);letter-spacing:.04em;
+  margin-bottom:1rem;line-height:1.2;
+}
+.formula-vars{display:flex;flex-direction:column;gap:4px;margin-top:.75rem}
+.fvar{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.fvar span{color:var(--cobalt);font-weight:500}
+.formula-note{font-size:13px;color:var(--muted);line-height:1.75;margin-top:.75rem}
+
+/* ─── CALC ─── */
+.calc-block{
+  background:var(--ink);border:1px solid var(--rule-heavy);
+  padding:2rem 2.5rem;margin-bottom:2.5rem;
+}
+.calc-tag{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:1.5rem}
+.slider-row{display:flex;align-items:center;gap:1.25rem;margin-bottom:1rem}
+.sl-label{font-family:var(--mono);font-size:11px;color:rgba(245,242,235,.5);min-width:200px;letter-spacing:.04em}
+input[type=range]{
+  flex:1;-webkit-appearance:none;appearance:none;
+  height:2px;background:rgba(245,242,235,0.15);outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--gold);cursor:pointer;
+  border:2px solid var(--ink);
+  box-shadow:0 0 0 1px var(--gold);
+}
+.sl-val{font-family:var(--mono);font-size:13px;color:var(--paper);min-width:72px;text-align:right;font-weight:500}
+.calc-out{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:rgba(245,242,235,.1);margin-top:1.5rem;
+}
+.cout-cell{background:rgba(245,242,235,.04);padding:1.25rem 1.5rem}
+.cout-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:rgba(245,242,235,.4);text-transform:uppercase;margin-bottom:.4rem}
+.cout-val{font-family:var(--mono);font-size:2rem;color:var(--gold);letter-spacing:.02em}
+
+/* ─── CANVAS BLOCKS ─── */
+.cv-block{
+  background:var(--cream);border:1px solid var(--rule-heavy);
+  padding:2rem 2.5rem;margin-bottom:2.5rem;
+}
+.cv-tag{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:1.25rem}
+.chart-legend{display:flex;gap:24px;margin-top:1rem;flex-wrap:wrap}
+.cl-item{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em}
+.cl-line{width:20px;height:2px;border-radius:1px}
+
+/* ─── FLOW STEPS ─── */
+.flow-timeline{
+  border-left:1px solid var(--rule-heavy);
+  padding-left:2rem;margin-left:1.5rem;
+  margin-bottom:2.5rem;
+}
+.ft-item{position:relative;padding:0 0 2.5rem 0}
+.ft-item:last-child{padding-bottom:0}
+.ft-item::before{
+  content:'';position:absolute;
+  left:calc(-2rem - 5px);top:5px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--gold);
+}
+.ft-num{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.4rem}
+.ft-title{font-family:var(--display);font-size:16px;font-weight:600;color:var(--ink);margin-bottom:.4rem;letter-spacing:.01em}
+.ft-body{font-size:13px;color:var(--muted);line-height:1.75;max-width:600px}
+.ft-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:.6rem}
+.ft-tag{font-family:var(--mono);font-size:10px;padding:3px 10px;border:1px solid var(--rule-heavy);color:var(--muted);letter-spacing:.05em}
+
+/* ─── MATERIAL TABLE ─── */
+.mat-table{
+  width:100%;border-collapse:collapse;
+  border:1px solid var(--rule-heavy);
+  margin-bottom:2.5rem;
+}
+.mat-table th{
+  background:var(--ink);color:var(--gold);
+  font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  padding:1rem 1.25rem;text-align:left;font-weight:500;
+  border-right:1px solid rgba(245,242,235,.1);
+}
+.mat-table th:last-child{border-right:none}
+.mat-table td{
+  padding:.9rem 1.25rem;font-size:13px;color:var(--ink);
+  border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+}
+.mat-table tr:last-child td{border-bottom:none}
+.mat-table td:first-child{color:var(--muted);font-family:var(--mono);font-size:11px}
+.mat-table td:last-child{border-right:none}
+.mat-table tr:hover td{background:var(--cream)}
+
+/* ─── FATIGUE CHAIN ─── */
+.fat-chain{
+  display:flex;align-items:stretch;gap:0;
+  border:1px solid var(--rule-heavy);margin-bottom:2.5rem;
+  overflow:hidden;
+}
+.fat-step{flex:1;padding:1.5rem 1.25rem;border-right:1px solid var(--rule-heavy);position:relative}
+.fat-step:last-child{border-right:none}
+.fat-step-n{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem}
+.fat-step-t{font-family:var(--display);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:.3rem}
+.fat-step-b{font-size:11px;color:var(--muted);line-height:1.6}
+.fat-step-bar{position:absolute;bottom:0;left:0;right:0;height:3px}
+
+/* ─── ALERT CARDS ─── */
+.alerts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule-heavy);border:1px solid var(--rule-heavy);margin-bottom:2.5rem}
+.alert-cell{padding:1.75rem 2rem}
+.alert-slow{background:rgba(26,58,110,0.05)}
+.alert-fast{background:rgba(184,50,50,0.05)}
+.alert-head{display:flex;align-items:center;gap:10px;margin-bottom:.6rem}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.alert-dot-slow{background:var(--cobalt-light)}
+.alert-dot-fast{background:var(--red)}
+.alert-title{font-family:var(--display);font-size:14px;font-weight:600}
+.alert-slow .alert-title{color:var(--cobalt)}
+.alert-fast .alert-title{color:var(--red)}
+.alert-body{font-size:13px;color:var(--muted);line-height:1.75}
+
+/* ─── CHECKS ─── */
+.checks{border:1px solid var(--rule-heavy);margin-bottom:2.5rem}
+.chk{display:flex;align-items:flex-start;gap:1.25rem;padding:1.1rem 1.5rem;border-bottom:1px solid var(--rule)}
+.chk:last-child{border-bottom:none}
+.chk-mark{
+  width:20px;height:20px;flex-shrink:0;margin-top:1px;
+  background:var(--teal);display:flex;align-items:center;justify-content:center;
+}
+.chk-mark svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.chk-text{font-size:13px;color:var(--muted);line-height:1.7}
+.chk-text strong{color:var(--ink);font-weight:600}
+
+/* ─── SEQUENCE NARRATIVE ─── */
+.seq-narrative{
+  display:grid;grid-template-columns:auto 1fr;gap:0 2rem;
+  border:1px solid var(--rule-heavy);overflow:hidden;
+  margin-bottom:2.5rem;
+}
+.sn-left{
+  background:var(--ink);padding:2rem 1.5rem;
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+.sn-letter{
+  width:40px;height:40px;border:1px solid rgba(200,168,75,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:1.2rem;color:var(--gold);
+  margin-bottom:0;
+}
+.sn-connector{flex:1;width:1px;background:rgba(200,168,75,.2);min-height:20px;margin:6px 0}
+.sn-right{padding:2rem 2.5rem;border-bottom:1px solid var(--rule)}
+.sn-right:last-child{border-bottom:none}
+.sn-title{font-family:var(--display);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:.4rem;letter-spacing:.02em}
+.sn-body{font-size:13px;color:var(--muted);line-height:1.75}
+
+/* ─── SUMMARY STRIP ─── */
+.sum-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  background:var(--rule-heavy);border:1px solid var(--rule-heavy);
+}
+.sum-cell{background:var(--paper);padding:2rem 1.75rem;border-right:1px solid var(--rule-heavy)}
+.sum-cell:last-child{border-right:none}
+.sum-accent{width:32px;height:2px;margin-bottom:1rem}
+.sum-title{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);margin-bottom:.75rem}
+.sum-body{font-size:12px;color:var(--muted);line-height:1.8}
+.sum-body strong{color:var(--ink);font-weight:600}
+
+/* ─── FOOTER BAR ─── */
+.footer-bar{
+  background:var(--ink);color:rgba(245,242,235,.3);
+  font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  padding:.75rem 3rem;display:flex;justify-content:space-between;
+  border-top:1px solid rgba(200,168,75,.2);
+}
+
+/* ─── DIVIDERS ─── */
+.rule{
+  display:flex;align-items:center;gap:1rem;
+  margin:2rem 0;color:var(--muted);
+  font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+}
+.rule::before,.rule::after{content:'';flex:1;height:1px;background:var(--rule-heavy)}
+
+/* ─── BARS (progress) ─── */
+.bar-row{display:flex;align-items:center;gap:1rem;margin-bottom:.75rem}
+.bar-label{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:220px;letter-spacing:.05em}
+.bar-track{flex:1;height:4px;background:rgba(10,11,13,.1);overflow:hidden}
+.bar-fill{height:100%;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.bar-val{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:72px;text-align:right}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes drawLine{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
+@keyframes spinSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+.hero-left>*{opacity:0;animation:fadeUp .7s ease forwards}
+.eyebrow{animation-delay:.2s}
+.hero-h1{animation-delay:.35s}
+.hero-body{animation-delay:.5s}
+.hero-stats{animation-delay:.65s}
+
+.sec.on .sec-header{animation:fadeUp .4s ease forwards}
+.sec.on .ed-grid{animation:fadeUp .5s ease .1s forwards;opacity:0}
+.sec.on .formula-block{animation:fadeUp .5s ease .15s forwards;opacity:0}
+.sec.on .cv-block{animation:scaleIn .5s ease .1s forwards;opacity:0}
+.sec.on .calc-block{animation:fadeUp .5s ease .2s forwards;opacity:0}
+.sec.on .flow-timeline{animation:slideIn .5s ease .1s forwards;opacity:0}
+.sec.on .mat-table{animation:fadeUp .5s ease .1s forwards;opacity:0}
+.sec.on .fat-chain{animation:fadeUp .5s ease .15s forwards;opacity:0}
+.sec.on .alerts{animation:scaleIn .5s ease .1s forwards;opacity:0}
+.sec.on .checks{animation:fadeUp .5s ease .15s forwards;opacity:0}
+.sec.on .seq-narrative{animation:fadeUp .5s ease .1s forwards;opacity:0}
+.sec.on .sum-strip{animation:fadeUp .5s ease .2s forwards;opacity:0}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  #hero{grid-template-columns:1fr}
+  .hero-right{display:none}
+  .ed-3,.ed-4,.sum-strip{grid-template-columns:1fr 1fr}
+  .formula-block,.mat-compare,.alerts{grid-template-columns:1fr}
+  .fat-chain{flex-direction:column}
+  .fat-step{border-right:none;border-bottom:1px solid var(--rule-heavy)}
+  .sec-inner{padding:3rem 1.5rem 5rem}
+  .site-header{padding:0 1.5rem}
+  .header-center{display:none}
+  .hnav{padding:0 8px;font-size:9px}
+}
+@media(max-width:600px){
+  .ed-2,.ed-3,.ed-4,.sum-strip{grid-template-columns:1fr}
+  .calc-out{grid-template-columns:1fr}
+  .bar-label{min-width:140px}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="curRing"></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo-mark">
+    <div class="logo-box">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"/><circle cx="12" cy="12" r="3" fill="#0a0b0d"/></svg>
+    </div>
+    <span class="logo-text">AER · 001</span>
+  </div>
+  <div class="header-center">Fusoliera · Pressurizzazione · Materiali</div>
+  <nav class="header-nav">
+    <button class="hnav" onclick="go('s0',this)">Intro</button>
+    <button class="hnav" onclick="go('s1',this)">Fusoliera</button>
+    <button class="hnav" onclick="go('s2',this)">Pressur.</button>
+    <button class="hnav" onclick="go('s3',this)">Profilo</button>
+    <button class="hnav" onclick="go('s4',this)">Materiali</button>
+    <button class="hnav" onclick="go('s5',this)">Sicurezza</button>
+    <button class="hnav" onclick="go('s6',this)">Sintesi</button>
+  </nav>
+</header>
+
+<!-- HERO -->
+<div id="s0" class="sec on" style="padding-top:0">
+  <div id="hero">
+    <div class="hero-left">
+      <div>
+        <div class="eyebrow">Ingegneria aeronautica — commissione di esame</div>
+        <h1 class="hero-h1">
+          Fusoliera,<br>
+          <em>pressurizzazione</em><br>
+          e resistenza
+        </h1>
+        <p class="hero-body">
+          Come la struttura primaria, l'impianto di pressurizzazione e la meccanica dei materiali collaborano per garantire sicurezza e comfort a bordo di ogni aeromobile civile moderno.
+        </p>
+      </div>
+      <div style="display:flex;align-items:center;gap:2rem;margin-bottom:2rem;padding:.85rem 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase">Candidato</div>
+        <div style="font-family:var(--serif);font-size:1.15rem;color:var(--ink);letter-spacing:.01em">Leonardo Farina</div>
+        <div style="width:1px;height:1.2rem;background:var(--rule-heavy)"></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em">Classe 5ACA</div>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat">
+          <div class="hstat-n">8–9</div>
+          <div class="hstat-l">psi · ΔP progetto</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-n">100k</div>
+          <div class="hstat-l">cicli vita a fatica</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-n">8k ft</div>
+          <div class="hstat-l">cabin altitude target</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <canvas id="heroCanvas" width="560" height="560" aria-label="Animazione schema fusoliera circolare con vettori di pressione" style="width:100%;max-width:480px;display:block;margin:0 auto"></canvas>
+      <div class="hero-caption">FIG. 01 — sezione trasversale fusoliera · distribuzione sforzi</div>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <span>Documento tecnico · uso didattico</span>
+    <span>Navigare con il menu in alto</span>
+    <span>EASA CS-25 · FAA FAR-25</span>
+  </div>
+</div>
+
+<!-- S1 FUSOLIERA -->
+<div id="s1" class="sec">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <span class="sec-num">01 /</span>
+      <h2 class="sec-title">La fusoliera — shell a pressione</h2>
+      <span class="sec-desc-short">struttura · geometria · componenti</span>
+    </div>
+
+    <div class="ed-grid ed-2">
+      <div class="ed-cell" style="border-left:3px solid var(--cobalt)">
+        <div class="ed-label">Funzione strutturale</div>
+        <div class="ed-title">Shell cilindrica pressurizzata</div>
+        <div class="ed-body">Struttura portante che contiene cabina e carichi utili, trasmette i carichi aerodinamici ai longheroni e resiste al differenziale di pressione interno ΔP per tutta la vita operativa del velivolo.</div>
+      </div>
+      <div class="ed-cell" style="border-left:3px solid var(--gold)">
+        <div class="ed-label">Geometria ottimale</div>
+        <div class="ed-title">Perché la sezione è circolare</div>
+        <div class="ed-body">La sezione circolare distribuisce uniformemente gli sforzi dovuti alla pressione interna. Ogni punto del perimetro riceve la stessa tensione di trazione, eliminando concentrazioni di tensione che richiederebbero rinforzi locali costosi.</div>
+      </div>
+    </div>
+
+    <div class="cv-block" style="padding-bottom:1.5rem">
+      <div class="cv-tag">Fig. 01-A — sezione trasversale · vettori di pressione e sforzo</div>
+      <canvas id="cSection" style="display:block;width:100%;max-width:680px;margin:0 auto" height="280" aria-label="Schema sezione fusoliera con forze di pressione interna verde e pressione esterna rossa"></canvas>
+    </div>
+
+    <div class="rule">componenti strutturali principali</div>
+
+    <div class="ed-grid ed-3">
+      <div class="ed-cell">
+        <div class="ed-label">01 · Longheroni</div>
+        <div class="ed-title">Stringers</div>
+        <div class="ed-body">Profili longitudinali che aumentano la rigidità della skin, trasmettono i carichi assiali e partecipano alla resistenza alla compressione e al momento flettente.</div>
+      </div>
+      <div class="ed-cell">
+        <div class="ed-label">02 · Ordinate</div>
+        <div class="ed-title">Frames</div>
+        <div class="ed-body">Anelli trasversali che mantengono la forma circolare della sezione, distribuiscono i carichi locali concentrati (porte, finestrini, attacchi) e prevengono l'instabilità della skin.</div>
+      </div>
+      <div class="ed-cell">
+        <div class="ed-label">03 · Rivestimento</div>
+        <div class="ed-title">Skin</div>
+        <div class="ed-body">Pannelli in alluminio o CFRP che reggono direttamente gli sforzi di trazione circonferenziale e longitudinale generati dal ΔP. Spessore: 1–6 mm tipico.</div>
+      </div>
+      <div class="ed-cell" style="border-top:1px solid var(--rule)">
+        <div class="ed-label">04 · Paratie</div>
+        <div class="ed-title">Pressure Bulkheads</div>
+        <div class="ed-body">Separano la zona pressurizzata da quella non pressurizzata. Limitano la propagazione strutturale dei danni e isolano la cabina.</div>
+      </div>
+      <div class="ed-cell" style="border-top:1px solid var(--rule)">
+        <div class="ed-label">05 · Pannello</div>
+        <div class="ed-title">DPP — Diff. Pressure Panel</div>
+        <div class="ed-body">Valvola strutturale che si apre in caso di sovrapressione eccessiva, proteggendo la struttura primaria da carichi non gestiti dal regolatore.</div>
+      </div>
+      <div class="ed-cell" style="border-top:1px solid var(--rule)">
+        <div class="ed-label">06 · Aperture</div>
+        <div class="ed-title">Porte e Finestrini</div>
+        <div class="ed-body">Interrompono il flusso degli sforzi nella skin. Richiedono rinforzi locali: doublers e frames rinforzati attorno alle aperture.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S2 PRESSURIZZAZIONE -->
+<div id="s2" class="sec">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <span class="sec-num">02 /</span>
+      <h2 class="sec-title">Impianto di pressurizzazione</h2>
+      <span class="sec-desc-short">ciclo · valori · regolazione</span>
+    </div>
+
+    <div class="ed-grid ed-4">
+      <div class="ed-cell ed-cell-dark">
+        <div class="ed-label">Quota crociera</div>
+        <div class="ed-val">39k ft</div>
+        <div class="ed-sub">quota dell'aeromobile</div>
+      </div>
+      <div class="ed-cell ed-cell-dark">
+        <div class="ed-label">Cabin altitude</div>
+        <div class="ed-val">6–8k ft</div>
+        <div class="ed-sub">pressione equivalente</div>
+      </div>
+      <div class="ed-cell ed-cell-dark" style="border-left:3px solid var(--gold)">
+        <div class="ed-label">ΔP massimo</div>
+        <div class="ed-val">8–9 psi</div>
+        <div class="ed-sub">55–62 kPa progetto</div>
+      </div>
+      <div class="ed-cell ed-cell-dark">
+        <div class="ed-label">Variazione max</div>
+        <div class="ed-val">700 ft/m</div>
+        <div class="ed-sub">limite normativo</div>
+      </div>
+    </div>
+
+    <div class="rule">ciclo aria — bleed air → cabina</div>
+
+    <div class="flow-timeline">
+      <div class="ft-item">
+        <div class="ft-num">Fase 01</div>
+        <div class="ft-title">Sorgente aria — bleed air</div>
+        <div class="ft-body">Aria prelevata dai compressori motore ad alta pressione (~200°C, ~40 psi). Nei velivoli di nuova generazione (B787, A220) sostituita da compressori elettrici dedicati per maggiore efficienza e riduzione del consumo.</div>
+        <div class="ft-tags"><span class="ft-tag">Compressori motore</span><span class="ft-tag">Bleed valve</span><span class="ft-tag">Pre-cooler</span></div>
+      </div>
+      <div class="ft-item">
+        <div class="ft-num">Fase 02</div>
+        <div class="ft-title">Pack di condizionamento (A/C Pack)</div>
+        <div class="ft-body">Scambiatore di calore primario + turbina di espansione (ciclo bootstrap) + separatore d'acqua. L'aria viene raffreddata da ~200°C a ~15–20°C, deumidificata e regolata in portata massica per la cabina.</div>
+        <div class="ft-tags"><span class="ft-tag">Heat exchanger</span><span class="ft-tag">Turbina espansione</span><span class="ft-tag">Separatore acqua</span><span class="ft-tag">Ciclo bootstrap</span></div>
+      </div>
+      <div class="ft-item">
+        <div class="ft-num">Fase 03</div>
+        <div class="ft-title">Distribuzione in cabina</div>
+        <div class="ft-body">L'aria condizionata entra nella cabina attraverso i condotti di distribuzione superiori e laterali. Il mixing con aria ricircolata (50%) attraverso filtri HEPA garantisce qualità dell'aria, comfort termico e riduzione dei patogeni.</div>
+        <div class="ft-tags"><span class="ft-tag">Condotti dist.</span><span class="ft-tag">Filtri HEPA H14</span><span class="ft-tag">Ricircolo 50%</span></div>
+      </div>
+      <div class="ft-item">
+        <div class="ft-num">Fase 04</div>
+        <div class="ft-title">Controllo pressione — Outflow Valve</div>
+        <div class="ft-body">Il Cabin Pressure Controller (CPC, ridondante) confronta la pressione misurata con il profilo selezionato e comanda l'outflow valve per espellere l'aria in eccesso, mantenendo il ΔP nei limiti strutturali e di comfort. La safety valve interviene per sovrapressioni non gestite.</div>
+        <div class="ft-tags"><span class="ft-tag">CPC ridondante</span><span class="ft-tag">Outflow valve</span><span class="ft-tag">Safety valve</span><span class="ft-tag">Negative press. valve</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S3 PROFILO -->
+<div id="s3" class="sec">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <span class="sec-num">03 /</span>
+      <h2 class="sec-title">Profilo di pressurizzazione</h2>
+      <span class="sec-desc-short">quota · fasi · tassi variazione</span>
+    </div>
+
+    <div class="cv-block">
+      <div class="cv-tag">Fig. 03-A — quota esterna vs cabin altitude · volo tipico lungo raggio</div>
+      <div style="position:relative;height:300px">
+        <canvas id="cProfile" aria-label="Profilo pressurizzazione: quota esterna rossa vs cabin altitude blu nelle fasi di volo"></canvas>
+      </div>
+      <div class="chart-legend">
+        <span class="cl-item"><span class="cl-line" style="background:#b83232"></span>Quota esterna reale</span>
+        <span class="cl-item"><span class="cl-line" style="background:#1a3a6e;border-top:2px dashed #1a3a6e;background:none;height:0"></span>Cabin altitude equivalente</span>
+      </div>
+    </div>
+
+    <div class="rule">analisi per fase di volo</div>
+
+    <div class="ed-grid ed-4">
+      <div class="ed-cell" style="border-top:3px solid var(--cobalt)">
+        <div class="ed-label">Decollo</div>
+        <div class="ed-title">Pressurizzazione inizia</div>
+        <div class="ed-body">L'impianto inizia a pressurizzare prima del decollo. Tasso di variazione cabin altitude: ~300 ft/min. ΔP inizialmente ridotto.</div>
+      </div>
+      <div class="ed-cell" style="border-top:3px solid var(--teal)">
+        <div class="ed-label">Salita</div>
+        <div class="ed-title">ΔP in crescita</div>
+        <div class="ed-body">Quota esterna sale rapidamente; cabin altitude aumenta lentamente. Il ΔP cresce progressivamente verso il valore di crociera.</div>
+      </div>
+      <div class="ed-cell" style="border-top:3px solid var(--gold)">
+        <div class="ed-label">Crociera</div>
+        <div class="ed-title">ΔP massimo</div>
+        <div class="ed-body">Condizione di progetto critica: ΔP 8–9 psi. Sforzi massimi sulla struttura. Cabin altitude stabile 6–8k ft.</div>
+      </div>
+      <div class="ed-cell" style="border-top:3px solid var(--muted)">
+        <div class="ed-label">Discesa · Atterraggio</div>
+        <div class="ed-title">Depressurizzazione</div>
+        <div class="ed-body">Cabin altitude scende gradualmente verso la quota aeroporto. Tasso max: ~500 ft/min per comfort uditivo.</div>
+      </div>
+    </div>
+
+    <div class="rule">tassi di variazione pressione (ft/min)</div>
+
+    <div style="padding:.5rem 0">
+      <div class="bar-row"><span class="bar-label">Salita — pressurizzazione</span><div class="bar-track"><div class="bar-fill" id="b1" style="width:0%;background:var(--cobalt)"></div></div><span class="bar-val">~300 ft/min</span></div>
+      <div class="bar-row"><span class="bar-label">Discesa — depressurizzazione</span><div class="bar-track"><div class="bar-fill" id="b2" style="width:0%;background:var(--teal)"></div></div><span class="bar-val">~500 ft/min</span></div>
+      <div class="bar-row"><span class="bar-label">Limite normativo massimo</span><div class="bar-track"><div class="bar-fill" id="b3" style="width:0%;background:var(--red)"></div></div><span class="bar-val">~700 ft/min</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S4 MATERIALI -->
+<div id="s4" class="sec">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <span class="sec-num">04 /</span>
+      <h2 class="sec-title">Resistenza dei materiali</h2>
+      <span class="sec-desc-short">sforzi · formule · fatica</span>
+    </div>
+
+    <div class="formula-block">
+      <div class="formula-cell">
+        <div class="formula-tag">Hoop stress — tensione domenante</div>
+        <div class="formula-eq">σ<sub>h</sub> = (p · r) / t</div>
+        <div class="formula-note">La tensione circonferenziale è la tensione dominante nella fusoliera cilindrica sotto pressione interna. Governa il dimensionamento della skin e risulta il doppio della tensione assiale.</div>
+        <div class="formula-vars">
+          <div class="fvar"><span>p</span> = differenza di pressione (Pa)</div>
+          <div class="fvar"><span>r</span> = raggio medio della fusoliera (m)</div>
+          <div class="fvar"><span>t</span> = spessore del rivestimento skin (m)</div>
+        </div>
+      </div>
+      <div class="formula-cell" style="background:var(--warm)">
+        <div class="formula-tag">Longitudinal stress — tensione assiale</div>
+        <div class="formula-eq">σ<sub>l</sub> = (p · r) / 2t</div>
+        <div class="formula-note">La tensione longitudinale è esattamente metà della hoop stress. Entrambe sono cicliche: ogni pressurizzazione/depressurizzazione costituisce un ciclo di carico che accumula danno a fatica nella struttura.</div>
+        <div class="formula-vars">
+          <div class="fvar">σ<sub>h</sub> / σ<sub>l</sub> = <span>2</span> (rapporto costante)</div>
+          <div class="fvar">1 volo = <span>1 ciclo</span> carico / scarico</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-block">
+      <div class="calc-tag">Calcolatore interattivo — hoop stress in tempo reale</div>
+      <div class="slider-row">
+        <span class="sl-label">ΔP — differenza di pressione</span>
+        <input type="range" min="10" max="70" value="55" step="1" id="slP" oninput="calcSig()">
+        <span class="sl-val" id="outP">55 kPa</span>
+      </div>
+      <div class="slider-row">
+        <span class="sl-label">r — raggio fusoliera</span>
+        <input type="range" min="1" max="6" value="3" step="1" id="slR" oninput="calcSig()">
+        <span class="sl-val" id="outR">3.0 m</span>
+      </div>
+      <div class="slider-row">
+        <span class="sl-label">t — spessore skin</span>
+        <input type="range" min="1" max="10" value="4" step="1" id="slT" oninput="calcSig()">
+        <span class="sl-val" id="outT">4 mm</span>
+      </div>
+      <div class="calc-out">
+        <div class="cout-cell"><div class="cout-label">σ_h — hoop stress</div><div class="cout-val" id="rH">41 MPa</div></div>
+        <div class="cout-cell"><div class="cout-label">σ_l — longitudinal</div><div class="cout-val" id="rL">21 MPa</div></div>
+      </div>
+    </div>
+
+    <div class="rule">confronto materiali strutturali</div>
+
+    <table class="mat-table">
+      <thead>
+        <tr>
+          <th>Proprietà</th>
+          <th>Alluminio 2xxx / 7xxx</th>
+          <th>Compositi CFRP</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Densità</td><td>2.70 g/cm³</td><td>1.55–1.60 g/cm³</td><td>CFRP ~42% più leggero</td></tr>
+        <tr><td>Resistenza a trazione</td><td>400–600 MPa</td><td>600–1500 MPa</td><td>Dipende da lay-up</td></tr>
+        <tr><td>Modulo elastico</td><td>70 GPa</td><td>70–200 GPa</td><td>Dipende da direzione fibre</td></tr>
+        <tr><td>Resistenza a fatica</td><td>Buona — prevedibile</td><td>Molto alta</td><td>CFRP non ha limite di fatica classico</td></tr>
+        <tr><td>Resistenza alla corrosione</td><td>Richiede protezione</td><td>Immune</td><td>B787: nessun trattamento anticorrosione</td></tr>
+        <tr><td>Riparabilità</td><td>Eccellente (saldatura, rivettatura)</td><td>Complessa (prepreg, autoclave)</td><td>Richiede personale specializzato</td></tr>
+        <tr><td>Ispezione NDT</td><td>Eddy current, ultrasuoni</td><td>Ultrasuoni, termografia IR</td><td>Metodi differenti per delamination</td></tr>
+        <tr><td>Utilizzo attuale</td><td>A320, B737 famiglia</td><td>B787 50%, A350 53%</td><td>Tendenza crescente verso CFRP</td></tr>
+      </tbody>
+    </table>
+
+    <div class="rule">materiali compositi — approfondimento CFRP</div>
+
+    <!-- CFRP intro cards -->
+    <div class="ed-grid ed-2" style="margin-bottom:1px">
+      <div class="ed-cell ed-cell-dark" style="border-left:3px solid var(--gold)">
+        <div class="ed-label">Cosa sono i compositi CFRP</div>
+        <div class="ed-title">Carbon Fibre Reinforced Polymer</div>
+        <div class="ed-body">Materiale formato da fibre di carbonio immerse in una matrice polimerica (resina epossidica). Le fibre, resistentissime in direzione assiale, vengono orientate strategicamente nel lay-up per resistere agli sforzi specifici della struttura.</div>
+      </div>
+      <div class="ed-cell ed-cell-dark">
+        <div class="ed-label">Perché il CFRP è ideale per la fusoliera</div>
+        <div class="ed-title">Resistenza senza peso</div>
+        <div class="ed-body">Rapporto resistenza/peso fino a 5× superiore all'alluminio. Nessuna corrosione → nessun trattamento superficiale → manutenzione ridotta. Amortizzazione vibrazionale migliore. Consente fusoliere più grandi con pareti più sottili.</div>
+      </div>
+    </div>
+
+    <!-- Lay-up diagram + properties -->
+    <div class="ed-grid ed-2" style="margin-bottom:2.5rem">
+      <div class="ed-cell" style="border-left:3px solid var(--cobalt);padding-bottom:1.5rem">
+        <div class="ed-label">Struttura a strati — Lay-up</div>
+        <div class="ed-title">Lamine orientate</div>
+        <div class="ed-body" style="margin-bottom:1.25rem">Il laminato CFRP è composto da strati di prepreg (fibra + resina pre-impregnata) con orientazioni diverse. Ogni orientazione contribuisce alla resistenza in una direzione specifica.</div>
+        <!-- ASCII-style layup visual -->
+        <div style="font-family:var(--mono);font-size:11px;line-height:2;color:var(--ink);background:var(--cream);border:1px solid var(--rule-heavy);padding:1rem 1.25rem;border-radius:2px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span style="display:inline-block;width:120px;height:6px;background:var(--cobalt);opacity:.9;border-radius:1px"></span><span style="color:var(--muted)">0° — carico assiale</span></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span style="display:inline-block;width:120px;height:6px;background:var(--gold);opacity:.85;border-radius:1px;transform:skewX(-20deg)"></span><span style="color:var(--muted)">+45° — taglio</span></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span style="display:inline-block;width:120px;height:6px;background:var(--teal);opacity:.85;border-radius:1px;transform:skewX(20deg)"></span><span style="color:var(--muted)">−45° — taglio simmetrico</span></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span style="display:inline-block;width:120px;height:6px;background:var(--red);opacity:.75;border-radius:1px"></span><span style="color:var(--muted)">90° — hoop stress</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="display:inline-block;width:120px;height:6px;background:var(--cobalt);opacity:.9;border-radius:1px"></span><span style="color:var(--muted)">0° — simmetria</span></div>
+          <div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--rule);color:var(--muted)">Sequenza tipica: [0/±45/90]<sub>s</sub></div>
+        </div>
+      </div>
+      <div class="ed-cell">
+        <div class="ed-label">Proprietà meccaniche direzionali</div>
+        <div class="ed-title">Materiale anisotropo</div>
+        <div class="ed-body" style="margin-bottom:1rem">A differenza dei metalli (isotropi), il CFRP ha proprietà diverse a seconda della direzione. Questa anisotropia è un vantaggio: si progetta la resistenza esattamente dove serve.</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <div class="bar-row" style="margin:0"><span class="bar-label" style="min-width:130px;font-size:10px">Direzione fibre (0°)</span><div class="bar-track" style="background:rgba(10,11,13,.08)"><div class="bar-fill cfrp-bar" data-w="95" style="width:0%;background:var(--cobalt)"></div></div><span class="bar-val" style="font-size:10px">1500 MPa</span></div>
+          <div class="bar-row" style="margin:0"><span class="bar-label" style="min-width:130px;font-size:10px">±45° (taglio)</span><div class="bar-track" style="background:rgba(10,11,13,.08)"><div class="bar-fill cfrp-bar" data-w="55" style="width:0%;background:var(--gold)"></div></div><span class="bar-val" style="font-size:10px">~800 MPa</span></div>
+          <div class="bar-row" style="margin:0"><span class="bar-label" style="min-width:130px;font-size:10px">90° (perp. fibre)</span><div class="bar-track" style="background:rgba(10,11,13,.08)"><div class="bar-fill cfrp-bar" data-w="30" style="width:0%;background:var(--teal)"></div></div><span class="bar-val" style="font-size:10px">~50 MPa</span></div>
+          <div class="bar-row" style="margin:0"><span class="bar-label" style="min-width:130px;font-size:10px">Alluminio (ref.)</span><div class="bar-track" style="background:rgba(10,11,13,.08)"><div class="bar-fill cfrp-bar" data-w="38" style="width:0%;background:var(--muted)"></div></div><span class="bar-val" style="font-size:10px">~500 MPa</span></div>
+        </div>
+        <div style="margin-top:.75rem;font-family:var(--mono);font-size:10px;color:var(--muted)">Il laminato [0/±45/90]<sub>s</sub> bilancia le proprietà → quasi-isotropo</div>
+      </div>
+    </div>
+
+    <!-- Failure modes & manufacturing -->
+    <div class="ed-grid ed-3" style="margin-bottom:2.5rem">
+      <div class="ed-cell" style="border-top:3px solid var(--red)">
+        <div class="ed-label">Modi di rottura specifici</div>
+        <div class="ed-title">Failure modes CFRP</div>
+        <div class="ed-body">Rottura delle fibre (fibre failure), rottura della matrice (matrix cracking), distacco fibre-matrice (debonding) e delaminazione tra strati. Quest'ultima è il modo più insidioso: non visibile ad occhio nudo, rilevabile solo con ultrasuoni o termografia IR.</div>
+      </div>
+      <div class="ed-cell" style="border-top:3px solid var(--gold)">
+        <div class="ed-label">Processo produttivo</div>
+        <div class="ed-title">Prepreg in autoclave</div>
+        <div class="ed-body">Le lamine di prepreg (fibra + resina) vengono impilate a mano o con ATL/AFP (Automated Tape/Fibre Placement), poi polimerizzate in autoclave a ~180°C e 7 bar. Processo costoso ma garantisce void content &lt; 1% e proprietà ripetibili.</div>
+      </div>
+      <div class="ed-cell" style="border-top:3px solid var(--teal)">
+        <div class="ed-label">Ispezione e riparazione</div>
+        <div class="ed-title">NDT e manutenzione</div>
+        <div class="ed-body">Ultrasuoni (phased array), termografia ad infrarossi e shearografia rilevano delaminazioni e impatti. Le riparazioni richiedono scarfing, lay-up di patch e polimerizzazione locale (hot-bonder). Più complessa dell'alluminio ma ormai consolidata (AMM specifici).</div>
+      </div>
+    </div>
+
+    <!-- Real aircraft examples -->
+    <div class="ed-grid ed-4" style="margin-bottom:2.5rem">
+      <div class="ed-cell ed-cell-dark">
+        <div class="ed-label">Boeing 787 Dreamliner</div>
+        <div class="ed-val" style="font-size:1.6rem">50%</div>
+        <div class="ed-sub">struttura in CFRP — prima fusoliera integralmente in composito</div>
+      </div>
+      <div class="ed-cell ed-cell-dark">
+        <div class="ed-label">Airbus A350 XWB</div>
+        <div class="ed-val" style="font-size:1.6rem">53%</div>
+        <div class="ed-sub">in CFRP · incl. fusoliera, ala, stabilizzatori</div>
+      </div>
+      <div class="ed-cell ed-cell-dark">
+        <div class="ed-label">Riduzione peso struttura</div>
+        <div class="ed-val" style="font-size:1.6rem">−20%</div>
+        <div class="ed-sub">vs struttura equivalente in alluminio</div>
+      </div>
+      <div class="ed-cell ed-cell-dark" style="border-left:3px solid var(--gold)">
+        <div class="ed-label">Risparmio carburante</div>
+        <div class="ed-val" style="font-size:1.6rem">−25%</div>
+        <div class="ed-sub">B787 vs B767 di taglia comparabile</div>
+      </div>
+    </div>
+
+    <div class="rule">ciclo di danneggiamento a fatica</div>
+
+    <div class="fat-chain">
+      <div class="fat-step">
+        <div class="fat-step-n">01</div>
+        <div class="fat-step-t">Carico</div>
+        <div class="fat-step-b">Pressurizzazione — sforzi raggiungono il valore massimo σ_h e σ_l</div>
+        <div class="fat-step-bar" style="background:var(--cobalt)"></div>
+      </div>
+      <div class="fat-step">
+        <div class="fat-step-n">02</div>
+        <div class="fat-step-t">Scarico</div>
+        <div class="fat-step-b">Depressurizzazione — sforzi tornano a zero, ciclo completato</div>
+        <div class="fat-step-bar" style="background:var(--teal)"></div>
+      </div>
+      <div class="fat-step">
+        <div class="fat-step-n">03</div>
+        <div class="fat-step-t">Microdanni</div>
+        <div class="fat-step-b">Accumulo di deformazioni plastiche locali e microcricche nei grani</div>
+        <div class="fat-step-bar" style="background:var(--gold)"></div>
+      </div>
+      <div class="fat-step">
+        <div class="fat-step-n">04</div>
+        <div class="fat-step-t">Propagazione</div>
+        <div class="fat-step-b">Le cricche crescono a ogni ciclo. Rilevate da NDT prima della lunghezza critica a_c</div>
+        <div class="fat-step-bar" style="background:var(--red)"></div>
+      </div>
+      <div class="fat-step">
+        <div class="fat-step-n">05</div>
+        <div class="fat-step-t">Rottura</div>
+        <div class="fat-step-b">K ≥ K_ic → propagazione instabile. Il design fail-safe garantisce che non accada</div>
+        <div class="fat-step-bar" style="background:#6e1a1a"></div>
+      </div>
+    </div>
+
+    <div class="cv-block">
+      <div class="cv-tag">Fig. 04-A — diagramma S–N di Wöhler · alluminio strutturale aeronautico</div>
+      <div style="position:relative;height:240px">
+        <canvas id="cWohler" aria-label="Curva di Wöhler: ampiezza di tensione in MPa vs numero di cicli a rottura in scala logaritmica. La curva decresce da circa 300 MPa a 10^3 cicli fino al limite di fatica a 10^7 cicli."></canvas>
+      </div>
+      <div style="margin-top:1rem;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em">
+        Vita utile richiesta: 60.000–100.000 cicli · verificata con analisi S-N e approccio damage tolerance (DT)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S5 SICUREZZA -->
+<div id="s5" class="sec">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <span class="sec-num">05 /</span>
+      <h2 class="sec-title">Sicurezza, guasti e procedure</h2>
+      <span class="sec-desc-short">decompressione · normativa · emergenza</span>
+    </div>
+
+    <div class="alerts">
+      <div class="alert-cell alert-slow">
+        <div class="alert-head">
+          <div class="alert-dot alert-dot-slow"></div>
+          <div class="alert-title">Decompressione lenta — perdita</div>
+        </div>
+        <div class="alert-body">Perdita graduale d'aria da guarnizioni usurate o microrotture della struttura. Allarme pressione in cabina ma nessuna maschera immediata. Il comandante esegue una discesa programmata sotto i 14.000 ft di cabin altitude. Tempo disponibile per l'azione: diversi minuti. Passeggeri avvertiti ma situazione gestibile in sicurezza.</div>
+      </div>
+      <div class="alert-cell alert-fast">
+        <div class="alert-head">
+          <div class="alert-dot alert-dot-fast"></div>
+          <div class="alert-title">Decompressione rapida — rottura strutturale</div>
+        </div>
+        <div class="alert-body">Caduta istantanea di pressione per rottura strutturale o guasto maggiore del sistema. Maschere di ossigeno automatiche a &gt; 14.000 ft cabin altitude (autonomia ~15 min). Emergency descent immediata fino a FL100. Tempo di coscienza utile senza ossigeno: 15–30 sec a 40.000 ft (TUC — Time of Useful Consciousness).</div>
+      </div>
+    </div>
+
+    <div class="rule">protezioni strutturali integrate</div>
+
+    <div class="ed-grid ed-3">
+      <div class="ed-cell" style="border-top:3px solid var(--cobalt)">
+        <div class="ed-label">Strutturale</div>
+        <div class="ed-title">Paratie di pressione</div>
+        <div class="ed-body">Pressure bulkheads isolano la cabina alle estremità. Limitano la propagazione dei danni e i flussi d'aria in caso di rottura locale della struttura.</div>
+      </div>
+      <div class="ed-cell" style="border-top:3px solid var(--gold)">
+        <div class="ed-label">Valvola strutturale</div>
+        <div class="ed-title">Pannello DPP</div>
+        <div class="ed-body">Differential Pressure Panel: si apre a pressione predefinita per proteggere la struttura primaria da sovrapressioni eccessive non gestite dal regolatore automatico.</div>
+      </div>
+      <div class="ed-cell" style="border-top:3px solid var(--teal)">
+        <div class="ed-label">Approccio progettuale</div>
+        <div class="ed-title">Fail-Safe Design</div>
+        <div class="ed-body">Il velivolo è progettato per resistere anche con una cricca esistente (damage tolerance). Le ispezioni NDT garantiscono il rilevamento prima della lunghezza critica a_c.</div>
+      </div>
+    </div>
+
+    <div class="rule">checklist normativa di progetto</div>
+
+    <div class="checks">
+      <div class="chk"><div class="chk-mark"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><div class="chk-text"><strong>Resistenza statica</strong> — verificata ai carichi massimi di progetto con fattori di sicurezza ≥ 1.5 come richiesto da EASA CS-25 e FAA FAR-25.</div></div>
+      <div class="chk"><div class="chk-mark"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><div class="chk-text"><strong>Vita a fatica</strong> — 60.000–100.000 cicli garantiti con analisi S-N (Wöhler) e approccio damage tolerance (DT). Cricca ammissibile a_allow &lt; a_c.</div></div>
+      <div class="chk"><div class="chk-mark"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><div class="chk-text"><strong>Ispezioni NDT periodiche</strong> — eddy current, ultrasuoni (A-scan, phased array), radiografia digitale e termografia IR ogni C-check e D-check.</div></div>
+      <div class="chk"><div class="chk-mark"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><div class="chk-text"><strong>Sistemi ridondanti</strong> — doppio CPC (Cabin Pressure Controller), outflow valve + safety valve + negative pressure valve indipendenti.</div></div>
+      <div class="chk"><div class="chk-mark"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><div class="chk-text"><strong>Rinforzi aperture</strong> — doublers e frames rinforzati attorno a porte, finestrini e portelli per contenere le concentrazioni di sforzo.</div></div>
+      <div class="chk"><div class="chk-mark"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><div class="chk-text"><strong>Procedure certificate</strong> — maschere O₂ automatiche, emergency descent checklist, comunicazioni ATC, diversione all'aeroporto più vicino.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S6 SINTESI -->
+<div id="s6" class="sec">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <span class="sec-num">06 /</span>
+      <h2 class="sec-title">Sintesi — il sistema integrato</h2>
+      <span class="sec-desc-short">connessioni · logica · conclusioni</span>
+    </div>
+
+    <div class="seq-narrative">
+      <div class="sn-left">
+        <div class="sn-letter">A</div><div class="sn-connector"></div>
+        <div class="sn-letter">B</div><div class="sn-connector"></div>
+        <div class="sn-letter">C</div><div class="sn-connector"></div>
+        <div class="sn-letter">D</div>
+      </div>
+      <div style="display:grid">
+        <div class="sn-right">
+          <div class="sn-title">L'impianto genera il ΔP strutturale</div>
+          <div class="sn-body">Il sistema di pressurizzazione mantiene la cabin altitude a 6–8k ft mentre l'aeromobile vola a 35–41k ft. Questo crea il differenziale di pressione di 8–9 psi (55–62 kPa) che agisce meccanicamente sulla fusoliera ad ogni singolo volo.</div>
+        </div>
+        <div class="sn-right">
+          <div class="sn-title">La fusoliera traduce il ΔP in sforzi</div>
+          <div class="sn-body">La shell cilindrica converte il ΔP in hoop stress circonferenziale (σ_h = pr/t) e tensione longitudinale (σ_l = pr/2t). Le aperture interrompono il flusso degli sforzi nella skin e richiedono rinforzi locali: doublers e frames rinforzati.</div>
+        </div>
+        <div class="sn-right">
+          <div class="sn-title">I materiali resistono nel tempo — e invecchiano</div>
+          <div class="sn-body">Gli sforzi sono ciclici: ogni volo è un ciclo carico/scarico che accumula danno a fatica. Alluminio e CFRP vengono dimensionati per reggere 60–100k cicli. Il degrado è monitorato con ispezioni NDT periodiche basate sull'approccio damage tolerance.</div>
+        </div>
+        <div class="sn-right" style="border-bottom:none">
+          <div class="sn-title">La progettazione contiene il rischio</div>
+          <div class="sn-body">ΔP massimo limitato per norma (CS-25 / FAR-25 FS ≥ 1.5), sistemi ridondanti (DPP, bulkheads, valvole multiple, CPC doppio) e procedure di emergenza certificate garantiscono sicurezza per passeggeri e struttura per tutta la vita operativa dell'aeromobile.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule">riepilogo dei quattro pilastri</div>
+
+    <div class="sum-strip">
+      <div class="sum-cell">
+        <div class="sum-accent" style="background:var(--cobalt)"></div>
+        <div class="sum-title">Fusoliera</div>
+        <div class="sum-body"><strong>Shell cilindrica</strong> — distribuzione uniforme degli sforzi, paratie di pressione, pannello DPP, porte e finestrini con rinforzi locali.</div>
+      </div>
+      <div class="sum-cell">
+        <div class="sum-accent" style="background:var(--teal)"></div>
+        <div class="sum-title">Pressurizzazione</div>
+        <div class="sum-body"><strong>Bleed air → Pack A/C → outflow valve</strong> — cabin altitude 6–8k ft, ΔP = 8–9 psi, regolazione automatica CPC ridondante.</div>
+      </div>
+      <div class="sum-cell">
+        <div class="sum-accent" style="background:var(--gold)"></div>
+        <div class="sum-title">Meccanica</div>
+        <div class="sum-body"><strong>σ_h = pr/t · σ_l = pr/2t</strong> — hoop stress dominante, fatica ciclica, curva Wöhler, damage tolerance, NDT.</div>
+      </div>
+      <div class="sum-cell">
+        <div class="sum-accent" style="background:var(--teal)"></div>
+        <div class="sum-title">Sicurezza</div>
+        <div class="sum-body"><strong>CS-25 · FAR-25</strong> — FS ≥ 1.5, 60–100k cicli, maschere O₂ automatiche, emergency descent, fail-safe design.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <span>AER · 001 — Fusoliera, Pressurizzazione e Materiali</span>
+    <span>Uso didattico · Commissione di esame</span>
+    <span>EASA CS-25 · FAA FAR-25 · Airworthiness Directives</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ── CURSOR ── */
+var cur=document.getElementById('cur'), curR=document.getElementById('curRing');
+document.addEventListener('mousemove',function(e){
+  cur.style.left=e.clientX+'px'; cur.style.top=e.clientY+'px';
+  curR.style.left=e.clientX+'px'; curR.style.top=e.clientY+'px';
+});
+
+/* ── NAVIGATION ── */
+var charts={};
+function go(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.hnav').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(btn) btn.classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='s1'&&!charts.sec){setTimeout(drawSection,80);charts.sec=true}
+  if(id==='s3'&&!charts.prof){setTimeout(()=>{drawProfile();animBars();},80);charts.prof=true}
+  if(id==='s4'&&!charts.woh){setTimeout(drawWohler,80);charts.woh=true}
+  if(id==='s4'){setTimeout(function(){document.querySelectorAll('.cfrp-bar').forEach(function(b){b.style.width=b.dataset.w+'%'});},300)}
+}
+
+/* ── HERO CANVAS ── */
+var heroCanvas=document.getElementById('heroCanvas');
+var hCtx=heroCanvas.getContext('2d');
+var hDpr=window.devicePixelRatio||1;
+var hW=560,hH=560;
+heroCanvas.width=hW*hDpr; heroCanvas.height=hH*hDpr; hCtx.scale(hDpr,hDpr);
+var hAngle=0,hPulse=0;
+
+function drawHero(){
+  hCtx.clearRect(0,0,hW,hH);
+  var cx=hW/2, cy=hH/2, R=180, r=130, skin=10;
+  hPulse+=0.025; hAngle+=0.003;
+
+  // outer glow
+  var grd=hCtx.createRadialGradient(cx,cy,0,cx,cy,R+60);
+  grd.addColorStop(0,'rgba(200,168,75,0.04)');
+  grd.addColorStop(1,'transparent');
+  hCtx.fillStyle=grd; hCtx.beginPath(); hCtx.arc(cx,cy,R+60,0,Math.PI*2); hCtx.fill();
+
+  // rotation grid rings
+  for(var ri=1;ri<=3;ri++){
+    hCtx.beginPath(); hCtx.arc(cx,cy,R*ri/3.5,0,Math.PI*2);
+    hCtx.strokeStyle='rgba(200,168,75,0.06)'; hCtx.lineWidth=1; hCtx.stroke();
+  }
+
+  // skin ring
+  hCtx.beginPath(); hCtx.arc(cx,cy,R,0,Math.PI*2);
+  hCtx.strokeStyle='rgba(200,168,75,0.15)'; hCtx.lineWidth=skin; hCtx.stroke();
+
+  // inner cabin
+  hCtx.beginPath(); hCtx.arc(cx,cy,r,0,Math.PI*2);
+  var grad2=hCtx.createRadialGradient(cx,cy,0,cx,cy,r);
+  grad2.addColorStop(0,'rgba(26,58,110,0.08)');
+  grad2.addColorStop(1,'rgba(26,58,110,0.02)');
+  hCtx.fillStyle=grad2; hCtx.fill();
+  hCtx.strokeStyle='rgba(26,58,110,0.4)'; hCtx.lineWidth=1.5; hCtx.stroke();
+
+  // pressure arrows inward (external)
+  var nExt=16;
+  for(var i=0;i<nExt;i++){
+    var a=(i/nExt)*Math.PI*2+hAngle;
+    var pulse=1+Math.sin(hPulse+i*0.4)*0.15;
+    var x1=cx+Math.cos(a)*(R+30*pulse), y1=cy+Math.sin(a)*(R+30*pulse);
+    var x2=cx+Math.cos(a)*(R+skin/2), y2=cy+Math.sin(a)*(R+skin/2);
+    var alpha=0.4+Math.sin(hPulse+i*0.5)*0.2;
+    hCtx.beginPath(); hCtx.moveTo(x1,y1); hCtx.lineTo(x2,y2);
+    hCtx.strokeStyle='rgba(184,50,50,'+alpha+')'; hCtx.lineWidth=1.5; hCtx.stroke();
+    hArrow(x1,y1,x2,y2,'rgba(184,50,50,'+alpha+')',5);
+  }
+
+  // pressure arrows outward (internal)
+  var nInt=12;
+  for(var j=0;j<nInt;j++){
+    var a2=(j/nInt)*Math.PI*2-hAngle*1.5;
+    var pulse2=1+Math.sin(hPulse+j*0.6)*0.12;
+    var ix=cx,iy=cy;
+    var ex=cx+Math.cos(a2)*(r-14)*pulse2, ey=cy+Math.sin(a2)*(r-14)*pulse2;
+    var alpha2=0.5+Math.sin(hPulse+j*0.4)*0.2;
+    hCtx.beginPath(); hCtx.moveTo(ix,iy); hCtx.lineTo(ex,ey);
+    hCtx.strokeStyle='rgba(26,110,90,'+alpha2+')'; hCtx.lineWidth=1.5; hCtx.stroke();
+    hArrow(ix,iy,ex,ey,'rgba(26,110,90,'+alpha2+')',5);
+  }
+
+  // center labels
+  hCtx.font='600 14px Syne,sans-serif'; hCtx.textAlign='center'; hCtx.textBaseline='middle';
+  hCtx.fillStyle='rgba(26,58,110,0.7)'; hCtx.fillText('P interna',cx,cy-6);
+  hCtx.font='300 11px IBM Plex Mono,monospace';
+  hCtx.fillStyle='rgba(122,112,96,0.6)'; hCtx.fillText('cabina',cx,cy+10);
+
+  // rotating tick marks
+  for(var k=0;k<36;k++){
+    var a3=(k/36)*Math.PI*2+hAngle*2;
+    var inner=k%3===0?R+skin+8:R+skin+4;
+    var outer=R+skin+14;
+    hCtx.beginPath();
+    hCtx.moveTo(cx+Math.cos(a3)*inner,cy+Math.sin(a3)*inner);
+    hCtx.lineTo(cx+Math.cos(a3)*outer,cy+Math.sin(a3)*outer);
+    hCtx.strokeStyle=k%3===0?'rgba(200,168,75,0.4)':'rgba(200,168,75,0.15)';
+    hCtx.lineWidth=k%3===0?1.5:0.5; hCtx.stroke();
+  }
+
+  // label ring
+  hCtx.font='400 10px IBM Plex Mono,monospace'; hCtx.textAlign='center'; hCtx.textBaseline='middle';
+  hCtx.fillStyle='rgba(184,50,50,0.5)'; hCtx.fillText('P est. →',cx+R+48,cy);
+  hCtx.fillStyle='rgba(26,110,90,0.6)'; hCtx.fillText('↑ σ',cx,cy-R-34);
+
+  requestAnimationFrame(drawHero);
+}
+drawHero();
+
+function hArrow(x1,y1,x2,y2,color,size){
+  var a=Math.atan2(y2-y1,x2-x1);
+  hCtx.beginPath();
+  hCtx.moveTo(x2,y2);
+  hCtx.lineTo(x2-size*Math.cos(a-Math.PI/6),y2-size*Math.sin(a-Math.PI/6));
+  hCtx.lineTo(x2-size*Math.cos(a+Math.PI/6),y2-size*Math.sin(a+Math.PI/6));
+  hCtx.closePath(); hCtx.fillStyle=color; hCtx.fill();
+}
+
+/* ── SECTION CANVAS ── */
+function drawSection(){
+  var c=document.getElementById('cSection');
+  var dpr=window.devicePixelRatio||1;
+  var W=Math.min(c.parentElement.clientWidth-80,640), H=280;
+  c.width=W*dpr; c.height=H*dpr; c.style.width=W+'px'; c.style.height=H+'px';
+  var ctx=c.getContext('2d'); ctx.scale(dpr,dpr);
+  var cx=W/2, cy=H/2, R=95, r=68, skin=12;
+
+  // outer glow
+  var g=ctx.createRadialGradient(cx,cy,0,cx,cy,R+40);
+  g.addColorStop(0,'rgba(26,58,110,0.05)'); g.addColorStop(1,'transparent');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,R+40,0,Math.PI*2); ctx.fill();
+
+  // skin
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(200,168,75,0.3)'; ctx.lineWidth=skin; ctx.stroke();
+
+  // inner
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle='rgba(26,58,110,0.04)'; ctx.fill();
+  ctx.strokeStyle='rgba(26,58,110,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // external arrows
+  for(var i=0;i<12;i++){
+    var a=(i/12)*Math.PI*2;
+    var x1=cx+Math.cos(a)*(R+22), y1=cy+Math.sin(a)*(R+22);
+    var x2=cx+Math.cos(a)*(R+skin/2), y2=cy+Math.sin(a)*(R+skin/2);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+    ctx.strokeStyle='#b83232'; ctx.lineWidth=1.5; ctx.stroke();
+    sArrow(ctx,x1,y1,x2,y2,'#b83232',5);
+  }
+  // internal arrows
+  for(var j=0;j<8;j++){
+    var a2=(j/8)*Math.PI*2;
+    var ex=cx+Math.cos(a2)*(r-10), ey=cy+Math.sin(a2)*(r-10);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(ex,ey);
+    ctx.strokeStyle='#1a6e5a'; ctx.lineWidth=1.5; ctx.stroke();
+    sArrow(ctx,cx,cy,ex,ey,'#1a6e5a',5);
+  }
+
+  // labels
+  ctx.font='600 13px Syne,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='#1a3a6e'; ctx.fillText('P interna',cx,cy-4);
+  ctx.font='11px IBM Plex Mono,monospace'; ctx.fillStyle='#7a7060';
+  ctx.fillText('cabina',cx,cy+12);
+
+  ctx.font='10px IBM Plex Mono,monospace'; ctx.fillStyle='#b83232';
+  ctx.fillText('pressione esterna',cx+R+55,cy-6);
+  ctx.fillStyle='#7a7060';
+  ctx.fillText('(P est. > P cabina)',cx+R+55,cy+9);
+
+  ctx.fillStyle='#1a6e5a';
+  ctx.fillText('sforzi circonferenziali',cx,cy-R-22);
+  ctx.fillText('e longitudinali (σ)',cx,cy-R-8);
+
+  // dimension line
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+r-5,cy);
+  ctx.strokeStyle='rgba(200,168,75,0.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font='10px IBM Plex Mono,monospace'; ctx.fillStyle='#c8a84b';
+  ctx.textAlign='center'; ctx.fillText('r',cx+r/2-5,cy-8);
+}
+
+function sArrow(ctx,x1,y1,x2,y2,color,size){
+  var a=Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-size*Math.cos(a-Math.PI/6),y2-size*Math.sin(a-Math.PI/6));
+  ctx.lineTo(x2-size*Math.cos(a+Math.PI/6),y2-size*Math.sin(a+Math.PI/6));
+  ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+}
+
+/* ── PROFILE CHART ── */
+function drawProfile(){
+  var c=document.getElementById('cProfile');
+  charts.prof=new Chart(c,{
+    type:'line',
+    data:{
+      labels:['Decollo','Salita iniziale','Salita crociera','Crociera','Inizio discesa','Discesa','Avvicinamento','Atterraggio'],
+      datasets:[
+        {label:'Quota esterna (ft)',data:[0,10000,28000,39000,39000,18000,5000,0],
+          borderColor:'#b83232',backgroundColor:'rgba(184,50,50,0.06)',
+          borderWidth:2.5,fill:true,tension:.45,
+          pointRadius:3,pointBackgroundColor:'#b83232',pointBorderColor:'#f5f2eb',pointBorderWidth:2},
+        {label:'Cabin altitude (ft)',data:[0,2000,5500,8000,8000,4500,1500,0],
+          borderColor:'#1a3a6e',backgroundColor:'rgba(26,58,110,0.04)',
+          borderWidth:2,fill:true,tension:.45,borderDash:[6,4],
+          pointRadius:3,pointBackgroundColor:'#1a3a6e',pointBorderColor:'#f5f2eb',pointBorderWidth:2}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.parsed.y/1000).toFixed(1)+'k ft'}}
+      },
+      scales:{
+        y:{min:0,max:44000,
+          ticks:{callback:v=>(v/1000).toFixed(0)+'k ft',color:'#7a7060',font:{size:10,family:'IBM Plex Mono'}},
+          grid:{color:'rgba(10,11,13,0.06)'}},
+        x:{ticks:{color:'#7a7060',font:{size:9,family:'IBM Plex Mono'},autoSkip:false,maxRotation:30},
+          grid:{color:'rgba(10,11,13,0.04)'}}
+      }
+    }
+  });
+}
+
+/* ── BARS ── */
+function animBars(){
+  setTimeout(function(){
+    document.getElementById('b1').style.width='43%';
+    document.getElementById('b2').style.width='71%';
+    document.getElementById('b3').style.width='100%';
+  },200);
+}
+
+/* ── WOHLER ── */
+function drawWohler(){
+  var c=document.getElementById('cWohler');
+  new Chart(c,{
+    type:'line',
+    data:{
+      labels:['10³','2×10³','5×10³','10⁴','5×10⁴','10⁵','5×10⁵','10⁶','5×10⁶','10⁷'],
+      datasets:[
+        {label:'σ (MPa)',
+          data:[310,275,235,200,158,135,110,97,88,82],
+          borderColor:'#c8a84b',backgroundColor:'rgba(200,168,75,0.07)',
+          borderWidth:2.5,fill:true,tension:.4,
+          pointRadius:3,pointBackgroundColor:'#c8a84b',pointBorderColor:'#edead9',pointBorderWidth:2}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' MPa'}}},
+      scales:{
+        y:{min:60,max:340,
+          title:{display:true,text:'Ampiezza tensione σ (MPa)',color:'#7a7060',font:{size:10,family:'IBM Plex Mono'}},
+          ticks:{color:'#7a7060',font:{size:10,family:'IBM Plex Mono'}},
+          grid:{color:'rgba(10,11,13,0.06)'}},
+        x:{title:{display:true,text:'Cicli a rottura N (log)',color:'#7a7060',font:{size:10,family:'IBM Plex Mono'}},
+          ticks:{color:'#7a7060',font:{size:10,family:'IBM Plex Mono'}},
+          grid:{color:'rgba(10,11,13,0.04)'}}
+      }
+    }
+  });
+}
+
+/* ── CALC ── */
+function calcSig(){
+  var p=parseInt(document.getElementById('slP').value)*1000;
+  var r=parseInt(document.getElementById('slR').value);
+  var t=parseInt(document.getElementById('slT').value)/1000;
+  document.getElementById('outP').textContent=Math.round(p/1000)+' kPa';
+  document.getElementById('outR').textContent=r.toFixed(1)+' m';
+  document.getElementById('outT').textContent=Math.round(t*1000)+' mm';
+  document.getElementById('rH').textContent=Math.round(p*r/t/1e6)+' MPa';
+  document.getElementById('rL').textContent=Math.round(p*r/(2*t)/1e6)+' MPa';
+}
+
+/* ── KEYBOARD NAV ── */
+var sids=['s0','s1','s2','s3','s4','s5','s6'];
+var cur_s=0;
+document.querySelectorAll('.hnav')[0].classList.add('on');
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'&&cur_s<sids.length-1){cur_s++;go(sids[cur_s],document.querySelectorAll('.hnav')[cur_s])}
+  if(e.key==='ArrowLeft'&&cur_s>0){cur_s--;go(sids[cur_s],document.querySelectorAll('.hnav')[cur_s])}
+});
+</script>
+</body>
+</html>
